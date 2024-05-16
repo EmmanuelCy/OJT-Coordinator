@@ -318,7 +318,10 @@ function MonthlyChart($month)
                                 <th scope="col" title="Profile Picture" class="text-center">Profile</th>
                                 <th scope="col" title="Full Name">Name</th>
                                 <th scope="col" class="text-center" title="Department">Department</th>
-                                <th scope="col">Gender</th>
+                                <th scope="col" class="text-center">Rendered(Hrs)</th>
+                                <th scope="col" class="text-center">Remaining(Hrs)</th>
+                                <th scope="col" class="text-center">Total(Hrs)</th>
+                                <th scope="col" class="text-center">Gender</th>
                                 <th scope="col" class="text-center" title="Deployed to a field">Deployed</th>
                                 <th scope="col" class="text-center" title="Vaccinated">Vaccinated
                                 <th scope="col" class="text-center" title="Evaluated Trainee">Evaluated</th>
@@ -327,7 +330,12 @@ function MonthlyChart($month)
                         </thead>
                         <tbody>
                             <?php
-                            $sql = "SELECT * FROM tbl_trainee WHERE role = 'User' ORDER BY name ASC";
+                            $sql = "SELECT SUM(R.minutes) AS total_minutes, T.* 
+                            FROM tbl_traineerenderedtime AS R
+                            RIGHT JOIN tbl_trainee AS T ON R.UID = T.UID
+                            WHERE T.role = 'User' 
+                            GROUP BY T.UID
+                            ORDER BY T.name ASC;";
                             $result = mysqli_query($conn, $sql);
 
                             if (mysqli_num_rows($result) > 0) {
@@ -364,10 +372,24 @@ function MonthlyChart($month)
                                         $GEN = strtoupper($row['gender']);
                                     }
 
+                                    if ($row['total_minutes'] == null) {
+                                        $Rendered['rendered'] = '0';
+                                        $Rendered['remaining'] = $row['fulfilled_time'] - $Rendered['rendered'];
+                                        $Rendered['total'] = $row['fulfilled_time'];
+                                    } else {
+                                        $Rendered['rendered'] = $row['total_minutes'] / 60;
+                                        $Rendered['remaining'] = $row['fulfilled_time'] - $Rendered['rendered'] ;
+                                        $Rendered['total'] = $row['fulfilled_time'];
+                                    }
+
+
                                     echo '<tr>
                                     <td class="text-center"><img src="' . $row['image'] . '" alt="Profile" class="rounded-circle img-fluid" style="width: 50px; height: 50px;"></td>
                                     <td class="text-truncate" style="max-width: 100px;" title="' . $row['name'] . '">' . $row['name'] . '</td>
                                     <td class="text-truncate text-center" style="max-width: 100px;">' . $row['department'] . '</td>
+                                    <td class="text-truncate text-center" style="max-width: 100px;">' . $Rendered['rendered'] . '</td>
+                                    <td class="text-truncate text-center" style="max-width: 100px;">' . $Rendered['remaining'] . '</td>
+                                    <td class="text-truncate text-center" style="max-width: 100px;">' . $Rendered['total'] . '</td>
                                     <td class="text-truncate text-center" style="max-width: 100px;">' . $GEN . '</td>
                                     <td class="text-truncate text-center" style="max-width: 100px;">' . $Progstat . '</td>
                                     <td class="text-truncate text-center" style="max-width: 100px;">' . $Vaccinated . '</td>
@@ -391,6 +413,9 @@ function MonthlyChart($month)
                     </table>
                 </div>
             </div>
+
+            <!-- Time Rendered -->
+
 
             <hr class="mt-4 mb-4" style="background-color: white; height: 5px; border-radius: 5px;">
 

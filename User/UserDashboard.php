@@ -85,16 +85,30 @@ if (!isset($_SESSION['DatahasbeenFetched'])) {
                 <?php
                 @include_once '../Components/Announcement.php';
                 @include_once '../Components/Modals/AdminEventModal.php';
+              
                 ?>
                 <div class="row row-cols-1 g-4">
                     <div class="col-md-4" hidden>
                         <!-- calendar -->
                         <div class="card h-100 border border-success shadow-lg user-select-none">
                             <div class="card-header">
-                                Calendar
+                                Timesheet
                             </div>
                             <div class="card-body">
                                 <div id="calendar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <div class="container-fluid">
+                                        </div>
+                                        <div id="calendar"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -104,12 +118,26 @@ if (!isset($_SESSION['DatahasbeenFetched'])) {
                     <div class="col-md-4" hidden>
                         sdasdasd
                     </div>
+
                     <div class="col-md-8">
                         <div class="card h-100 border border-success shadow-lg user-select-none">
                             <div class="card-header">
-                                Program Joined
+                            </div>
+                            <div>
                             </div>
                             <?php
+                            // Time Rendered Function
+                            function timeRendered($conndb,$uid, $fulfilled) {
+                                $sql = "SELECT SUM(minutes) FROM tbl_traineerenderedtime WHERE UID = '$uid'";
+                                $qresult = mysqli_query($conndb, $sql);
+                                $qrow = mysqli_fetch_assoc($qresult);
+                                $renderedTime['rendered'] = $qrow['SUM(minutes)'] / 60;
+                                $renderedTime['remaining'] = $fulfilled - $renderedTime['rendered'];
+                                $renderedTime['total'] = $fulfilled;
+                                return $renderedTime;
+                            }
+                            $renderedTime = timeRendered($conn,$_SESSION['GlobalID'],$_SESSION['Fulfilled']);
+
                             $id = $_SESSION['GlobalID'];
                             $sql = "SELECT program, prog_duration, fulfilled_time FROM tbl_trainee WHERE UID = '$id'";
                             $result = mysqli_query($conn, $sql);
@@ -152,6 +180,9 @@ if (!isset($_SESSION['DatahasbeenFetched'])) {
                                 $enddate = date("F j, Y", strtotime($row['end_date']));
                                 $start = date("g:i A", strtotime($row['start_time']));
                                 $end = date("g:i A", strtotime($row['end_time']));
+                                $end_date = strtotime($row['end_date']);
+                                $current_date = strtotime(date('Y-m-d'));
+                                $daysleft = max(0, ($end_date - $current_date) / 86400);
 
                                 if (isset($_SESSION['GlobalCompleted']) && $_SESSION['GlobalCompleted'] == 'true') {
                                     $Progoutput =
@@ -161,15 +192,18 @@ if (!isset($_SESSION['DatahasbeenFetched'])) {
                                 } else {
                                     $Progoutput =
                                         '<div class="card-body">
-                            <h5 class="card-title">' . $row['title'] . '</h5>
+                            <h5 class="card-title">' . $row['title'] . '<span name=daysleft style="color:green"> ('.$daysleft.' Days Left)</span></h5>
                             <p class="card-text">Duration: ' . $row['Duration'] . ' Weeks</p>
                             <p class="card-text">Start and End Date: ' . $startdate . ' - ' . $enddate . '</p>
                             <p class="card-text">From: ' . $start . ' to ' . $end . '</p>
                             <p class="card-text">Supervisor: ' . $row['Supervisor'] . '</p>
                             <p class="card-text">Description: ' . $row['description'] . '</p>
+                            <p class="card-text">Time Rendered: ' . $renderedTime['rendered'] . ' Hours</p>
+                            <p class="card-text">Remaining: ' . $renderedTime['remaining'] . ' Hours</p>
+                            <p class="card-text">Total Duration: ' . $renderedTime['total'] . ' Hours</p>
+                            
                             </p>
                             </div>
-                            <br>
                             <div class="card-footer">
                             <div class="progress">
                                 <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
@@ -263,6 +297,14 @@ if (!isset($_SESSION['DatahasbeenFetched'])) {
                         </div>
                     </div>
                 </div>
+                <script>
+                let daysleft = <?php echo $daysleft; ?>;
+                if (daysleft) {
+                    if (daysleft <= 7) {
+                        document.querySelector('[name="daysleft"]').style.color = "red";
+                    }
+                }
+                </script>
                 <div class="text">Events</div>
                 <div class="container-lg">
                     <div class="row row-cols-1 row-cols-md-3 g-4">
