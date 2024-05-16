@@ -17,7 +17,7 @@ if($_SESSION['UpdateSeason']){
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $logintype = $_POST['logintype'];
+
     $sql = "SELECT * FROM tbl_accounts WHERE username = '$username' OR password = '$password'";
     $result = mysqli_query($conn, $sql);
 
@@ -34,11 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['Show'] = true;
                 header("Location: ../Login.php");
             } elseif ($row['username'] == $username && $row['password'] == $password) {
-                if ($row['role'] == "administrator" && $logintype == "admin") {
+                if ($row['role'] == "administrator") {
                     fetchAdminData($row['UID']);
-                } else if ($row['role'] == "moderator" && $logintype == "mod") {
+                } else if ($row['role'] == "moderator") {
                     fetchModeratorData($row['UID']);
-                } else if ($row['role'] == "User" && $logintype == "trainee"){
+                } else {
                     fetchUserData($row['UID']);
                 }
                 unset($_SESSION['autoUsername']);
