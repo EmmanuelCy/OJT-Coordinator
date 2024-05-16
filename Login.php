@@ -7,14 +7,15 @@ session_start();
 if (isset($_SESSION['autoUsername']) && isset($_SESSION['autoPassword'])) {
     $uname = $_SESSION['autoUsername'];
     $pword = $_SESSION['autoPassword'];
+    
 }
 
-/* if (isset($_POST['login'])) {
+ /*if (isset($_POST['login'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
+    $trainee_name = $_SESSION['trainee_name'];
 
-
-    if (empty($username) || empty($password)) {
+   /* if (empty($username) || empty($password)) {
         $error = "Please fill out all the fields.";
     } elseif (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
         $error = "Invalid username.";
@@ -89,18 +90,30 @@ if (isset($_SESSION['autoUsername']) && isset($_SESSION['autoPassword'])) {
                         title="Password must contain at least 8 characters, including UPPER/lowercase and numbers with special characters and no whitespaces.">
                     <div style="margin: -20px 5px 0 5px; display: flex; justify-content: space-between;">
                         <div>
+                        <div class="form-group">
+  							<label for="password" class="form-control item" name= "User Type"?>
+  							<select name="type" id="logintype" class="custom-select" required>
+                                <option value=""></option>
+                                <option value="trainee">Trainee</option>
+  								<option value="admin">Administrator</option>
+  								<option value="mod">Moderator</option>
+                            </select>
+                            
+  						</div>
                             <input class="form-check-input" type="checkbox" id="flexCheckDefault">
                             <label class="form-check-label" for="flexCheckDefault" style="Color: #000;">
                                 Show Password
                             </label>
                         </div>
-                        <!-- I will add this later -->
+                    
                         <p class="reg-link" style="cursor: pointer;"><a href="./Components/ForgotPWord/VerifyEmail.php">Forgot Password?</a></p>
                     </div>
                 </div>
+                
                 <div class="form-group">
                     <button type="submit" class="btn btn-block create-account" name="login">Sign In</button>
                     <div>
+                        
                         <p class="reg-link text-end">Don't have an account? <a href="Registration.php">Register Here</a>
                         </p>
                     </div>
@@ -112,7 +125,7 @@ if (isset($_SESSION['autoUsername']) && isset($_SESSION['autoPassword'])) {
             <div class="social-media error" hidden>
             </div>
             <p class="text-muted text-center mt-2"><small>
-                    <span class="text-dark fw-bold">&copy; 2023. All Rights Reserved.</span>
+                    <span class="text-dark fw-bold">&copy; 2024. All Rights Reserved.</span>
                 </small></p>
         </div>
 
